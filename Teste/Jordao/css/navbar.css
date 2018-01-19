@@ -1,0 +1,76 @@
+.navbar-custom {
+  margin-bottom: 0;
+  border-bottom: 1px solid;
+  border-bottom-color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  font-family: Montserrat, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background-color: #000;
+}
+.navbar-custom .navbar-brand {
+  font-weight: 700;
+  color: #a4ce4e;
+}
+.navbar-custom .navbar-brand:hover {
+  color: #fff;
+}
+.navbar-custom .navbar-brand:focus {
+  outline: 0;
+  color: #2acc35;
+}
+.navbar-custom .navbar-brand .navbar-toggle {
+  padding: 4px 6px;
+  font-size: 16px;
+  color: #fff;
+}
+.navbar-custom .navbar-brand .navbar-toggle:focus, .navbar-custom .navbar-brand .navbar-toggle:active {
+  outline: 0;
+}
+.navbar-custom .nav li a {
+  color: #fff;
+  transition: all 0.3s;
+  transition-timing-function: ease-in-out;
+}
+
+.navbar-custom .nav li a:hover {
+  outline: 0;
+  color: black;
+  background-color: #a4ce4e;
+}
+.navbar-custom .nav li a:focus, .navbar-custom .nav li a:active {
+  outline: 0;
+  background-color: #a4ce4e;
+}
+
+.navbar-custom .nav li.active {
+  outline: 0;
+}
+.navbar-custom .nav li.active a {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+.navbar-custom .nav li.active a:hover {
+  color: #fff;
+}
+
+.navbar-custom .nav ul {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+@media screen and (min-width: 767px) {
+  .navbar-custom {
+    border-bottom: 0;
+    letter-spacing: 1px;
+    background: rgba(0, 0, 0, 0.3);
+    transition: background 0.5s;
+    transition-timing-function: ease-in-out;
+  }
+  .navbar-custom.top-nav-collapse {
+    padding: 0;
+    border-bottom: 1px solid;
+    border-bottom-color: rgba(255, 255, 255, 0.3);
+    background: #000;
+  }
+
+  .navbar-custom.top-nav-collapse ul {
+    background: #000;
+  }
+}

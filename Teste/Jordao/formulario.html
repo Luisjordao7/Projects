@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<html>
+<style> 
+body {
+    background-color: #D8D8D8;
+}
+</style>
+<head>
+<meta charset="utf-8">
+<meta name="description" content="WebSite IPBeja">
+<meta name="author" content="Luís Jordão">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>IPBeja</title>
+
+<link rel="stylesheet" href="css/estilos.css">
+<link href="css/navbar.css" rel="stylesheet"> 
+<link href="index.html">  
+
+<link href="http://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
+
+ <!--BootStrap-->
+ 
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">  
+ 
+<link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+
+
+
+</head>
+
+<body>
+ <!-- navbar -->
+<nav id="nav" class="navbar navbar-custom navbar-fixed-top" role="navigation">
+     <!-- navbar -->
+</nav>
+
+
+<form action="action_page.php"  method="get">
+  <fieldset>
+
+    <br><br><br>
+  <div class="form-group">
+
+    <legend>Formulário</label></legend>
+    
+    <label for="exampleInputName2">Escolha o Destinatário</label>
+   <select name="escolher">
+    <option value="Serviços">Serviços Académicos</option>
+    <option value="estig">Estig</option>
+    <option value="Agraria">Escola Agraria</option>
+    <option value="Saude">Escola de Saude</option>< 
+  </select>
+
+    <br><br>
+    
+    <label for="exampleInputName3">Name</label>
+    <input type="text"  class="form-control" name="Nome"  "  >
+    <br><br>
+    <label for="exampleInputName4">Email</label>
+    <input type="email" class="form-control" name="Email" autocomplete="off">
+    <br><br>
+    <label for="exampleInputName5">Assunto</label>
+    <input  type="text" class="form-control" name="Nome" >
+    <br><br>
+     
+    
+  
+    <label for="exampleInputName6">Mensagem</label>
+    <textarea name="message" class="form-control" rows="12" cols="80"></textarea>
+    <br>  
+    
+    
+
+    <input class="btn btn-submit"  type="reset" align="center" value="Enviar">
+  </fieldset>
+ </div>
+<div id="succ" class="hide">
+    <p>*E-mail enviado com sucesso</p>
+  </div>
+</form>
+
+<footer>
+  <div class="container text-center" style="color: black">
+    <p>Copyright &copy; 2016 - Instituto Politécnico de Beja</p>
+
+    <a href="https://www.facebook.com/IPBeja/?ref=ts"><i class="fa fa-facebook fa-2x"></i></a>
+    <a href="https://twitter.com/ipbeja"><i class="fa fa-twitter fa-2x"></i></a>
+    <a href="https://www.instagram.com/institutopolitecnicodebeja/"><i class="fa fa-instagram fa-2x"></i></a>
+    <a href="https://www.youtube.com/user/IPBejaTV#g/p"><i class="fa fa-youtube fa-2x"></i></a>
+  </div>
+</footer>
+</br>
+<!--JS-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+<script type="text/javascript" src='js/LoadXML/xml-Slider.js'></script>
+<script src="js/navbar.js"></script>
+<script src="js/submit.js"></script>
+</body>
+</html>
