@@ -1,0 +1,159 @@
+import acm.graphics.*;
+import acm.program.*;
+import acm.gui.*; 
+import acm.util.*; 
+import acm.io.*;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.applet.*;
+
+
+public class MyTurtle extends GTurtle
+{
+    /** É aqui que os objectos da classe NewTurtle 
+     *  começam realmente a fazer coisas. 
+     *  Coloque o seu código entre as chavetas após o run().
+     */    
+    public MyTurtle()
+    {
+        super(); 
+    }
+    private World world;
+
+    public MyTurtle(World world, double x, double y)
+    {
+        super(x,y);
+        this.world = world;
+    }
+
+    public void drawPolygon(double radius , int nSides)
+    {
+        double r = radius;
+        double s = 2*(r)*Math.sin(Math.PI /nSides);
+        double angle = 360.0 / nSides;
+        for (int i = 0; i < nSides; i++)
+        {
+
+            this.forward(s);
+
+            this.right(angle);
+        }
+
+    }
+
+    /*public void drawPolygonCentred(double x, double y , int nSides, double radius)
+    {
+
+    double r = radius;
+    double s = 2*(r)*Math.sin(Math.PI /nSides);
+    setLocation(x ,y);
+    this.left(90);
+    this.forward(radius);
+    this.left(90);
+    this.forward(s/2);
+    this.right(90);
+    this.right(90);
+
+    this.drawPolygon(radius ,nSides);
+
+    }*/
+    public void drawPolygonCentred(double x, double y, int nSides,double radius)
+    {
+        /*double r=radius;
+        this.setPos(x-r,y-r);
+        this.drawPolygon(radius,nSides);*/
+        double r=radius;
+        this.setPos(x,y);
+        this.setPos(x-r, y-r);
+        this.drawPolygon(radius, nSides);
+
+    }
+
+    public void setPos (double x, double y)
+    {
+        double x2 = this.getX();
+        double y2 = this.getY();
+
+        double angle = GMath.angle (x2, y2, x, y);
+        double distance = GMath.distance (x2, y2, x, y);
+
+        this.setDirection(angle);
+        this.penUp();
+        this.forward(distance);
+        this.penDown();
+        this.setDirection(0);
+
+    } 
+
+    public void polygonShow(int nRows, int nCols, double radius)
+    {
+        this.setLocation(200,200);
+        int nSides = 3;
+        for (int i=0; i<nCols; i++)
+        {
+
+            this.drawPolygon(radius, nSides);
+            this.penUp();
+            this.forward((radius * 2) + 10);
+            this.penDown();
+            nSides = nSides+1;
+        } 
+
+        for (int j=0; j<nRows; j++)
+        {
+            this.penUp();
+            this.left(180);
+            this.forward((nCols*(radius * 2) )+ (10*nCols -10));
+            this.left(90);
+            this.forward((radius*2) + 10);
+            this.left(90);
+            this.penDown();
+            for (int i=0; i<nCols; i++)
+            {
+
+                this.drawPolygon(radius, nSides);
+                this.penUp();
+                this.forward((radius * 2) + 10);
+                this.penDown();
+                nSides = nSides+1;
+            } 
+        }
+
+    }
+
+    public void recursiveSquare(double side)
+
+    {
+        int nSides = 4;
+        double l=side;
+        double ls = l / 1+Math.sqrt(5) /2;
+        this.left(50);
+        for (int g = 0; g < nSides; g++)
+        {
+
+            this.forward(l);
+
+            this.right(90);
+
+        }
+
+        for (int i = 1; i > 0; i++)
+        {
+            this.left(90);
+
+            for (int j = 0; j < nSides; j++)
+            {
+
+                this.forward(ls);
+
+                this.left(90);
+
+            }
+            
+             this.right(90);
+             this.forward(ls);
+
+        }
+    }
+} 
