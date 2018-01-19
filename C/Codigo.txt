@@ -1,0 +1,791 @@
+ TG1v1.cpp : Defines the entry point for the console application.
+//
+
+#include "stdafx.h"
+#include <stdlib.h>
+#include <locale.h>
+#include <time.h>
+#include <stdio.h>
+#include <string.h>
+#include <Windows.h>
+#include <string>
+#include <iostream>
+#include <mmsystem.h>
+#pragma comment( lib, "winmm" )
+
+#define MAX_JOGADOR 200
+#define MAX_DESCRICAO 500
+#define MAX_SALA 10
+#define SALA_INICIAL 1
+#define ENERGIA_JOGADOR 50
+#define ENERGIA_JOGADOR_SU 50000
+#define ENERGIA_MONSTRO 30
+#define MAX_LIN 200
+#define DANO 8
+HANDLE wHnd;
+HANDLE rHnd;
+
+
+
+//Estrutura do Jogador 
+struct Jogador{
+
+	char nome[MAX_JOGADOR];
+	int energia;
+	int celula;
+	int tesouro;
+	int raca;
+};
+
+//Estrutura do Monstro
+struct Monstro{
+
+	int energia;
+	int sala;
+};
+
+//Estrutura da Sala
+struct Sala{
+
+	int norte;
+	int sul;
+	int oeste;
+	int este;
+	char descricao[MAX_DESCRICAO];
+	int tesouro;
+};
+
+//Métodos necessários para correr o jogo
+void NomeJogo(int verificarJogador);
+void MenuPrincipal(int verificarJogador);
+void ComandosJogo(int verificarJogador);
+void Historia(int verificarJogador);
+void InicializarMonstro();
+void InicializarMapa(struct Sala sala[]);
+void GravarTxt(struct Sala sala[]);
+void LerTxt(struct Sala sala[]);
+void GravarBin(struct Sala sala[]);
+void LerBin(struct Sala sala[]);
+void NovoJogo(struct Jogador *pJogador, struct Monstro *pMonstro, struct Sala sala[], int verificarJogador);
+void Jogar(struct Jogador *pJogador, struct Sala sala[], struct Monstro *pMonstro, int verificarJogador);
+void GravarJogo(struct Jogador *pJogador, struct Sala sala[], struct Monstro *pMonstro);
+void CarregarJogo(struct Jogador *pJogador, struct Sala sala[], struct Monstro *pMonstro, int verificarJogador);
+void VerificarTesouro(struct Jogador *pJogador, struct Sala sala[]);
+void Combate(struct Jogador *pJogador, struct Monstro *pMonstro);
+void MaximizeWindow();
+
+//Método principal
+int main(int argc, char *argv[])
+{
+
+	MaximizeWindow();
+	SetConsoleTitle(L"<-----DIMITRI----->"); //Altera o titulo da consola para a string
+	system("cls");
+	setlocale(LC_ALL, "Portuguese");
+	int verificarJogador;
+
+
+	if ((argv[1] != NULL) && (strcmp(argv[1], "SU") == 0)) // Só entra como super jogador se no argv[1] contiver a string "SU"
+	{
+		verificarJogador = 1; // se for 0, entra como jogador normal
+	}
+	else
+	{
+		verificarJogador = 0; // se for 1, entra como super jogador
+	}
+	NomeJogo(verificarJogador);
+	MenuPrincipal(verificarJogador);
+
+	return 0;
+}
+
+void MaximizeWindow()
+{
+	wHnd = GetStdHandle(STD_OUTPUT_HANDLE);
+	COORD bufferSize = { 80, 50 };
+	SetConsoleScreenBufferSize(wHnd, bufferSize);
+	CONSOLE_SCREEN_BUFFER_INFO info;
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
+	SMALL_RECT rc;
+	rc.Left = rc.Top = 0;
+	rc.Right = (short)(min(info.dwMaximumWindowSize.X, info.dwSize.X) - 1);
+	rc.Bottom = (short)(min(info.dwMaximumWindowSize.Y, info.dwSize.Y) - 1);
+	SetConsoleWindowInfo(GetStdHandle(STD_OUTPUT_HANDLE), true, &rc);
+}
+
+//Cria o nome do jogo
+void NomeJogo(int verificarJogador)
+{
+	SetConsoleTextAttribute(wHnd, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY); //altera as cores dos caracteres da consola
+	wHnd = GetStdHandle(STD_OUTPUT_HANDLE);
+	printf("***************************************************************************\n");
+	printf("***************************************************************************\n");
+	printf("************************DIMITRI********************************************\n");
+	printf("*******************O MAIOR DA ALDEIA****************************************\n");
+	printf("***************************************************************************\n");
+	printf("********************E ARREDORES !!!!****************************************\n");
+	printf("***************************************************************************\n");
+	printf("***************************************************************************\n");
+	printf("***************************************************************************\n");
+
+
+
+
+
+	if (verificarJogador == 1)
+	{
+		printf("És o Dimitri! Vinga a tua aldeia! (Super Jogador)\n\n");
+	}
+	else
+	{
+		printf("Jogador normal\n\n");
+	}
+}
+
+//Cria o menu principal do jogo
+void MenuPrincipal(int verificarJogador)
+{
+	//Inicializar estruturas
+	struct Jogador jogador;
+	struct Sala sala[MAX_SALA];
+	struct Monstro monstro;
+
+
+	InicializarMapa(sala); //inicializa o mapa e cria os ficheiros .bin e .txt
+
+	wHnd = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(wHnd, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_INTENSITY); //altera as cores dos caracteres da consola
+	int op; //op = operação desejada
+
+	printf("Novo Jogo - Prima 1\n");
+	printf("Carregar Jogo - Prima 2\n");
+	printf("Comandos do Jogo - Prima 3\n");
+	printf("História - Prima 4\n");
+	printf("Sair - Prima Outra tecla\n");
+	printf("\n\n");
+	printf("Prima o número necessário seguido de ENTER para realizar a operação desejada:\n");
+	scanf("%d", &op);
+
+
+	switch (op)
+	{
+	case 1:
+		NovoJogo(&jogador, &monstro, sala, verificarJogador);
+		break;// Novo Jogo		
+	case 2:
+		CarregarJogo(&jogador, sala, &monstro, verificarJogador);
+		break; // Carregar Jogo					
+	case 3:
+		ComandosJogo(verificarJogador);
+		break;		// História
+	case 4:
+		Historia(verificarJogador);
+		break;		// Autoria do Trabalho	
+
+	default:
+		exit(1);
+		break; //sai do jogo
+	}
+}
+
+//Monstra os comandos necessários para jogar
+void ComandosJogo(int verificarJogador)
+{
+	system("cls");
+
+	printf("Comandos do Jogo\n\n");
+	printf("w - norte\n");
+	printf("a - oeste\n");
+	printf("s - sul\n");
+	printf("d - este\n");
+	printf("g - gravar jogo\n\n");
+
+	int op;
+	printf("Prima a tecla 1 seguida de ENTER para voltar ao menu principal\n");
+	scanf("%d", &op);
+	if (op == 1)
+	{
+		system("cls");
+		NomeJogo(verificarJogador);
+		MenuPrincipal(verificarJogador);
+	}
+	else
+	{
+		printf("Prima a tecla 1 seguida de ENTER para voltar ao menu principal\n");
+		scanf("%d", &op);
+	}
+}
+
+//Vai ler a história de um ficheiro de texto e apresenta-o na consola
+void Historia(int verificarJogador)
+{
+	system("cls");
+
+	FILE *f;
+	char l[MAX_LIN];
+
+	f = fopen("historia_jogo.txt", "r");
+
+	while (fgets(l, MAX_LIN, f) != NULL)
+	{
+		fputs(l, stdout);
+	}
+
+	fclose(f);
+
+	int op;
+	printf("\n\nPrima a tecla 1 seguida de ENTER para voltar ao menu principal\n");
+	scanf("%d", &op);
+	if (op == 1)
+	{
+		system("cls");
+		NomeJogo(verificarJogador);
+		MenuPrincipal(verificarJogador);
+	}
+	else
+	{
+		printf("Prima a tecla 1 seguida de ENTER para voltar ao menu principal\n");
+		scanf("%d", &op);
+	}
+}
+
+//Inicializa o Monstro, com uma Energia e numa sala aleatoria
+void InicializarMonstro(struct Monstro *pMonstro)
+{
+	srand(time(NULL));
+
+	int posicao; //variavel que contém a posição do monstro
+
+	posicao = rand() % (3) + 7; //random para as posições do monstro, está em todas as salas menos na 1, 2, 3, 4, 5, 6
+
+	pMonstro->sala = posicao;
+	pMonstro->energia = ENERGIA_MONSTRO;
+}
+
+//Inicializa o Mapa, com os respectivos valores das salas
+void InicializarMapa(struct Sala sala[])
+{
+	
+
+	//Portão da Cidade 1
+	sala[1].norte = 2;
+	sala[1].sul = -1;
+	sala[1].oeste = -1;
+	sala[1].este = -1;
+	sala[1].tesouro = 0;
+	strcpy(sala[1].descricao, "Bem vindo jovem destemido, os habitantes de Vilar dos Prazeres contam com a tua garra e força para derrutares os inimigos que têm vindo a provocar imensos danos na nossa vila."
+		"Não percas mais tempo, vai enfrentá-los e traz a paz de volta\n\n");
+
+	//Praça Principal 2
+	sala[2].norte = 5;
+	sala[2].sul = 1;
+	sala[2].oeste = -1;
+	sala[2].este = 3;
+	sala[2].tesouro = 0;
+	strcpy(sala[2].descricao, "Meu Deus, não fazia ideia que a vila estava neste estado , só  vejo pessoas a sofrer à minha frente, como é possível?."
+		"Vou mudar o destino desta vila antes que seja tarde demais!\n\n");
+
+	//Mercado 3
+	sala[3].norte = 4;
+	sala[3].sul = -1;
+	sala[3].oeste = 2;
+	sala[3].este = -1;
+	sala[3].tesouro = 0;
+	strcpy(sala[3].descricao, "Boa, parece que ando perdido, tenho que achar rapidamente o Castelo, não posso continuar a desperdiçar tempo a andar às voltas\n\n");
+
+	//Biblioteca 4
+	sala[4].norte = -1;
+	sala[4].sul = 3;
+	sala[4].oeste = 5;
+	sala[4].este = -1;
+	sala[4].tesouro = 0;
+	strcpy(sala[4].descricao, "Que medo, esta biblioteca está cheia de livros velhos, está tudo com imenso pó e sem luz quase nenhuma, de certeza que está abandonada\n\n");
+
+	//Taberna 5
+	sala[5].norte = 6;
+	sala[5].sul = 2;
+	sala[5].oeste = -1;
+	sala[5].este = 4;
+	sala[5].tesouro = 0;
+	strcpy(sala[5].descricao, "Que bela coincidência, já que estou aqui, vou aproveitar para fazer algumas perguntas e beber um copo de vinho, para depois retornar a minha jornada\n\n");
+
+	//Loja de Armas 6
+	sala[6].norte = -1;
+	sala[6].sul = 5;
+	sala[6].oeste = -1;
+	sala[6].este = 7;
+	sala[6].tesouro = 0;
+	strcpy(sala[6].descricao, "Que armas espectaculares , mas eu n ao presiso de nenhuma arma para matar o terrivel Belele , eu ja tenho a fantastica vara de marmelo !!\n\n");
+
+	//Portões do Castelo 7
+	sala[7].norte = 8;
+	sala[7].sul = -1;
+	sala[7].oeste = 6;
+	sala[7].este = -1;
+	sala[7].tesouro = 0;
+	strcpy(sala[7].descricao, "Como é possivel, eu conseguir ouvir aqui a voz do Monstro, deve ser tão forte e implacável."
+		"Tenho que ter muito cuidado agora, ele pode estar em qualquer lugar\n\n");
+
+	//Átrio 8
+	sala[8].norte = -1;
+	sala[8].sul = 7;
+	sala[8].oeste = 9;
+	sala[8].este = -1;
+	sala[8].tesouro = 0;
+	strcpy(sala[8].descricao, "Este castelo até arrepia, tantas armaduras, armas, capacetes aqui à vista, realmente deve ter sido uma grande dinastia."
+		"Estou a sentir uma enorme adrenalina e força dentro de mim\n\n");
+
+	//Salão de Festas 9
+	sala[9].norte = 10;
+	sala[9].sul = -1;
+	sala[9].oeste = -1;
+	sala[9].este = 8;
+	sala[9].tesouro = 0;
+	strcpy(sala[9].descricao, "Que sala enorme, nunca tinha visto uma mesa de refeições e uns cadeirões com este tamanho, incrível."
+		"Tenho que deixar de ser piegas com estas coisas, esta vila depende de mim\n\n");
+	// Masmorra 10
+	sala[10].norte = -1;
+	sala[10].sul = 9;
+	sala[10].oeste = -1;
+	sala[10].este = -1;
+	sala[10].tesouro = 0;
+	strcpy(sala[9].descricao, "Que sala arrepiante, nunca tinha visto tantos corpos juntos , tenho que ter cuidado isto e território do Balele\n");
+
+
+	GravarTxt(sala);
+	//LerTxt(sala);
+	GravarBin(sala);
+	LerBin(sala);
+	GravarTxt(sala);
+	//LerTxt(sala);
+	GravarBin(sala);
+	LerBin(sala);
+}
+
+//Grava num ficheiro .txt o conteudo do mapa
+void GravarTxt(struct Sala sala[])
+{
+	FILE *ficheiroTxt;
+
+	ficheiroTxt = fopen("Mapa_TXT.txt", "w");
+
+	for (int i = 0; i < MAX_SALA; i++)
+	{
+		fprintf(ficheiroTxt, "%d\n", sala[i].norte);
+		fprintf(ficheiroTxt, "%d\n", sala[i].este);
+		fprintf(ficheiroTxt, "%d\n", sala[i].sul);
+		fprintf(ficheiroTxt, "%d\n", sala[i].oeste);
+		fprintf(ficheiroTxt, "%d\n", sala[i].tesouro);
+		fprintf(ficheiroTxt, "%s\n", sala[i].descricao);
+	}
+	fclose(ficheiroTxt);
+}
+//Lê ficheiro .txt com o conteudo do mapa
+void LerTxt(struct Sala sala[])
+{
+	FILE *ficheiroTxt;
+	char linha[MAX_LIN];
+
+	ficheiroTxt = fopen("Mapa_TXT.txt", "r");
+
+	if (ficheiroTxt == NULL)
+	{
+		printf("O ficheiro não se encontra na directoria\n");
+	}
+	else
+	{
+		for (int i = 0; i < MAX_SALA; i++)
+		{
+			fgets(linha, MAX_LIN, ficheiroTxt);
+			sala[i].norte = atoi(linha);
+			fgets(linha, MAX_LIN, ficheiroTxt);
+			sala[i].este = atoi(linha);
+			fgets(linha, MAX_LIN, ficheiroTxt);
+			sala[i].sul = atoi(linha);
+			fgets(linha, MAX_LIN, ficheiroTxt);
+			sala[i].oeste = atoi(linha);
+			fgets(linha, MAX_LIN, ficheiroTxt);
+			sala[i].tesouro = atoi(linha);
+			fgets(linha, MAX_LIN, ficheiroTxt);
+			strcpy(sala[i].descricao, linha);
+		}
+		fclose(ficheiroTxt);
+
+
+		srand(time(NULL));
+
+		int pos_tesouro = rand() % (5) + 5; //sala onde se encontra tesouro, entre as salas 5 e 10
+
+		sala[pos_tesouro].tesouro = 1;
+	}
+}
+
+//Grava num ficheiro .bin o conteudo do mapa
+void GravarBin(struct Sala sala[])
+{
+	FILE *ficheiroBin;
+
+	ficheiroBin = fopen("Mapa_BIN.bin", "w");
+
+	fwrite(sala, sizeof(struct Sala), MAX_SALA, ficheiroBin);
+	fclose(ficheiroBin);
+}
+
+//Lê ficheiro .bin com o conteudo do mapa
+void LerBin(struct Sala sala[])
+{
+	FILE *ficheiroBin;
+
+	ficheiroBin = fopen("Mapa_BIN.bin", "r");
+
+	if (ficheiroBin == NULL)
+	{
+		printf("O ficheiro não se encontra na directoria\n");
+	}
+	else
+	{
+		fread(sala, sizeof(struct Sala), MAX_SALA, ficheiroBin);
+		fclose(ficheiroBin);
+
+		srand(time(NULL));
+
+		int pos_tesouro = rand() % (6) + 4; //sala onde se encontra tesouro, entre as salas 4 e 9
+
+		sala[pos_tesouro].tesouro = 1;
+	}
+}
+
+//Cria um novo jogo
+void NovoJogo(struct Jogador *pJogador, struct Monstro *pMonstro, struct Sala sala[], int verificarJogador)
+{
+	system("cls");
+
+	if (verificarJogador == 0)
+	{
+		printf("\n\nEscolhe um nome para a tua personagem...\n");
+		scanf("%s", pJogador->nome);
+		system("cls");
+		pJogador->energia = ENERGIA_JOGADOR;
+	}
+	else
+	{
+		pJogador->energia = ENERGIA_JOGADOR_SU;
+		strcpy(pJogador->nome, "DIMITRI");
+	}
+	pJogador->celula = SALA_INICIAL;
+	pJogador->tesouro = 0;
+	InicializarMonstro(pMonstro);
+	Jogar(pJogador, sala, pMonstro, verificarJogador); //Chama o método jogar
+}
+
+//Permite navegar pelas salas
+void Jogar(struct Jogador *pJogador, struct Sala sala[], struct Monstro *pMonstro, int verificarJogador)
+{
+	int gameOver = 0;
+	char mover = NULL;
+	int salaActual;
+
+	while (gameOver == 0) //enquanto o jogo nao acabar
+	{
+		system("cls");
+		salaActual = pJogador->celula;
+		printf(sala[salaActual].descricao);
+		VerificarTesouro(pJogador, sala);
+		if (verificarJogador == 1)
+		{
+			sala[0].este = 2;
+			sala[0].norte = -1;
+			if (pMonstro->energia > 0)
+			{
+				printf("||||||||||Tu estás na sala %d...||||||||||\n", salaActual);
+				printf("||||||||||O Belele está na sala %d,||||||||||\n", pMonstro->sala);
+				Sleep(500);
+			}
+		}
+		scanf("%s", &mover);
+		switch (mover){
+		case 'w': {
+
+			if (sala[salaActual].norte != -1)
+			{
+				salaActual = sala[salaActual].norte;
+				pJogador->celula = salaActual;
+			}
+		}break;
+		case 's': {
+			if (sala[salaActual].sul != -1)
+			{
+				salaActual = sala[salaActual].sul;
+				pJogador->celula = salaActual;
+			}
+		}break;
+		case 'a': {
+			if (sala[salaActual].oeste != -1)
+			{
+				salaActual = sala[salaActual].oeste;
+				pJogador->celula = salaActual;
+			}
+		}break;
+		case 'd': {
+
+			if (sala[salaActual].este != -1)
+			{
+				salaActual = sala[salaActual].este;
+				pJogador->celula = salaActual;
+			}
+		}break;
+		case 'g': {
+			GravarJogo(pJogador, sala, pMonstro);
+		}break;
+		default:{
+			salaActual = salaActual;
+		}break;
+		}
+
+		if (pMonstro->sala == salaActual)
+		{
+			if (pMonstro->energia > 0)
+			{
+				Sleep(1000);
+				Combate(pJogador, pMonstro);
+			}
+			else
+			{
+				system("cls");
+				printf("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\nO Belelr está ali!!!\nDescansa...\n"
+					"O Belelejá está morto ;)\n&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n\n");
+				Sleep(2000);
+			}
+		}
+		else
+		{
+			if (pMonstro->energia > 0)
+				InicializarMonstro(pMonstro);
+		}
+		if (pJogador->tesouro == 1)
+			gameOver = 1;
+
+		if (pJogador->tesouro == 1)
+			gameOver = 1;
+	}
+
+	//quando ganha o jogo, a mensagem fica a piscar
+	for (int i = 0; i < 10; i++)
+	{
+		system("cls");
+		Sleep(100);
+		printf("\n\n\n\n***************************************************************************\n");
+		printf("*ºººººººººººººººººººººººº!!!!!!! Parabéns !!!!!!!ººººººººººººººººººººººººº*\n"
+			"*ººººººººº Ganhas te este fantastico jogo es um DIMITRI.. ºººººººººº*\n");
+		printf("***************************************************************************\n");
+		Sleep(200);
+	}
+	Sleep(2500);
+	system("cls");
+	NomeJogo(verificarJogador);
+	MenuPrincipal(verificarJogador);
+
+}
+
+//Grava o jogo num ficheiro .txt se clicar na techa g seguida de ENTER
+void GravarJogo(struct Jogador *pJogador, struct Sala sala[], struct Monstro *pMonstro)
+{
+	FILE *savegame;
+	savegame = fopen("savegame.txt", "w");
+	fprintf(savegame, "%s", pJogador->nome);
+	fprintf(savegame, "\n");
+	fprintf(savegame, "%d\n", pJogador->celula);
+	fprintf(savegame, "%d\n", pJogador->energia);
+	fprintf(savegame, "%d\n", pJogador->tesouro);
+	fprintf(savegame, "%d\n", pMonstro->energia);
+	if (pJogador->tesouro == 0){
+		for (int i = 0; i < MAX_SALA; i++){
+			if (sala[i].tesouro == 1)
+			{
+				fprintf(savegame, "%d", i);
+			}
+		}
+	}
+	fclose(savegame);
+	printf("Ficheiro gravado com sucesso!\n");
+	system("pause");
+	exit(1);
+}
+
+//Carrega um jogo previamente gravado
+void CarregarJogo(struct Jogador *pJogador, struct Sala sala[], struct Monstro *pMonstro, int verificarJogador)
+{
+	FILE *loadgame;
+	char data[MAX_JOGADOR];
+	loadgame = fopen("savegame.txt", "r");
+	fgets(data, MAX_JOGADOR, loadgame);
+	data[strcspn(data, "\n")] = '\0'; //retira um \n e coloca um \0
+	strcpy(pJogador->nome, data);
+	fgets(data, MAX_JOGADOR, loadgame);
+	pJogador->celula = atoi(data);
+	fgets(data, MAX_JOGADOR, loadgame);
+	pJogador->energia = atoi(data);
+	fgets(data, MAX_JOGADOR, loadgame);
+	pJogador->tesouro = atoi(data);
+	fgets(data, MAX_JOGADOR, loadgame);
+	pMonstro->energia = atoi(data);
+	fgets(data, MAX_JOGADOR, loadgame);
+	for (int i = 0; i < MAX_SALA; i++)
+	{
+		sala[i].tesouro = 0;
+	}
+	if (pJogador->tesouro == 0)
+	{
+		sala[atoi(data)].tesouro = 1;
+	}
+	InicializarMonstro(pMonstro);
+	system("cls");
+	printf("Jogo carregado com sucesso!\n\n");
+	printf("O teu nome é %s.\nTens %d de energia!\nBoa sorte!\n", pJogador->nome, pJogador->energia);
+	system("pause");
+	Jogar(pJogador, sala, pMonstro, verificarJogador);
+}
+
+//Verifica se na sala onde está o jogador tem tesouro
+void VerificarTesouro(struct Jogador *pJogador, struct Sala sala[])
+{
+
+	if (sala[pJogador->celula].tesouro == 1)
+	{
+		pJogador->tesouro = 1;
+		sala[pJogador->celula].tesouro = 0;
+
+
+
+		printf("******************************************************************\n"
+			"ENCONTRAS-TE O tesouro!!!! \nMuitos parabéns... Vais salvar a tua cidade.\n"
+			"***********************GANHAS-TE ESTE FANTASTICO JOGAO******************\n"
+			"******************************************************************\n\n");
+	}
+}
+
+//Se o jogador se encontrar na mesma sala que o monstro, é chamado este método, para combaterem
+void Combate(struct Jogador *pJogador, struct Monstro *pMonstro)
+{
+	system("cls");
+	printf("?????????????????????????????????????????????\nEstou a detectar movimento!\n"
+		"O que se passa?!\nOh não, é o Belele!!!\n?????????????????????????????????????????????\n\n");
+
+	Sleep(3000);
+	srand(time(NULL));
+	int primeiro = rand();
+	int	segundo;
+	int combateOn = 1;
+
+	while (combateOn == 1) //enquanto nenhum morre...
+	{
+		if (primeiro % 2 == 0)
+		{
+			printf("************ Vais atacar... ************\n");
+			Sleep(2000);
+
+			segundo = rand() % 100;
+			if (segundo > 75)
+			{
+				printf("Falhaste o ataque!\n");
+				Sleep(1000);
+
+			}
+			else
+			{
+				printf("Boa! Acertaste no Belele\n");
+				pMonstro->energia = pMonstro->energia - DANO;
+				printf("O Belele tem %d de energia\n", pMonstro->energia);
+				Sleep(1000);
+
+				if (pMonstro->energia <= 0)
+				{
+					combateOn = 0;
+				}
+			}
+			if (combateOn == 1)
+			{
+				printf("+++++++++ O Belele vai atacar... +++++++++\n");
+				Sleep(2000);
+
+				segundo = rand() % 100;
+				if (segundo > 75)
+				{
+					printf("O Belele falhou o ataque\n");
+					Sleep(1000);
+				}
+				else
+				{
+					printf("O Belele acertou-te!!!!\n");
+					pJogador->energia = pJogador->energia - DANO;
+					printf("Tens agora %d de energia\n", pJogador->energia);
+					Sleep(1000);
+					if (pJogador->energia <= 0)
+					{
+						combateOn = 0;
+					}
+				}
+			}
+		}
+		else
+		{
+			printf("+++++++++++ O Belele vai atacar... ++++++++\n");
+			Sleep(2000);
+
+			segundo = rand() % 100;
+			if (segundo > 75)
+			{
+				printf("O Belele falhou o ataque\n");
+			}
+			else
+			{
+				printf("O Belele acertou-te!!!!\n");
+				pJogador->energia = pJogador->energia - DANO;
+				printf("Tens agora %d de energia\n", pJogador->energia);
+				if (pJogador->energia <= 0)
+				{
+					combateOn = 0;
+				}
+			}
+			if (combateOn = 1)
+			{
+				printf("************ Vais atacar... ************\n");
+				Sleep(2000);
+
+				segundo = rand() % 100;
+				if (segundo > 75)
+				{
+					printf("Falhaste o ataque!\n");
+					Sleep(1000);
+
+				}
+				else
+				{
+					printf("Boa! Acertaste no Belele\n");
+					pMonstro->energia = pMonstro->energia - DANO;
+					printf("O Belele tem %d de energia\n", pMonstro->energia);
+					Sleep(1000);
+
+					if (pMonstro->energia <= 0)
+					{
+						combateOn = 0;
+					}
+				}
+			}
+		}
+
+		if (pMonstro->energia <= 0)
+		{
+			printf("Derrotaste o Temível Belele!!!\n");
+
+			Sleep(3000);
+		}
+		if (pJogador->energia <= 0)
+		{
+			printf("Perdeste o Jogo!!!\n");
+			system("pause");
+			exit(1);
+		}
+	}
+
+}
