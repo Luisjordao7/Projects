@@ -1,0 +1,50 @@
+import acm.graphics.*;
+import acm.program.*;
+import acm.gui.*; 
+import acm.util.*; 
+import acm.io.*;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.applet.*;
+
+/** Este código utiliza a <a href="http://jtf.acm.org/index.html">
+ * biblioteca ACM Java Task Force</a> para a qual existe
+ * <a href="http://jtf.acm.org/javadoc/student/index.html">esta documentação</a>.
+ * <p>
+ * Esta classe é um exemplo de um "GraphicsProgram": um programa com
+ * uma janela na qual é possível desenhar objectos gráficos. 
+ * <p>
+ * Este template para o BlueJ foi criado na  
+ * <a href="http://www.estig.ipbeja.pt">
+ * Escola Superior de Tecnologia e Gestão</a> do
+ * Instituto Politécnico de Beja, por João Paulo Barros, 
+ * em 2007/03/23. 
+ * Esta é a versão de 2013/09/24.
+ * <hr>
+ * @author (o seu nome) 
+ * @version (número de versão ou data) 
+ */
+
+public class World extends GraphicsProgram 
+{
+    /** É aqui que os objectos da classe World 
+     *  começam realmente a fazer coisas. 
+     *  Coloque o seu código entre as chavetas após o run().
+     */    
+    public void run()
+    {
+        MyTurtle turtle = new MyTurtle();
+        turtle.setSpeed(0.85);
+        this.add(turtle, 200, 200);
+        this.waitForClick();
+        turtle.penDown();
+        //turtle.drawSquaresLineRandom(3, 20);
+        //turtle.drawSquaresLine(3, 10, Color.RED);
+        turtle.drawSquaresRotated(20, 150, Color.RED);
+              
+
+        //turtle.rotate();
+        turtle.hideTurtle();
+    }
+} 
