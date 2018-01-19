@@ -1,0 +1,77 @@
+import acm.graphics.*;
+import acm.program.*;
+import acm.gui.*; 
+import acm.util.*; 
+import acm.io.*;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.applet.*;
+
+
+
+public class MyTurtle extends GTurtle 
+{
+    
+    /**
+     * Draws one line of squares with random colors
+     * @param nSquares number of squares
+     * @param  side length for each square
+     */
+    public void drawSquaresLineRandom(int nSquares, int side)
+    {
+        for(int i = 0; i < nSquares; i++)
+        {
+            Color c = RandomGenerator.getInstance().nextColor();
+            this.drawSquare(side, c);
+            this.forward(side);
+        }
+    }
+    
+    public void drawSquaresLine(int nSquares, int side, Color color)
+    {
+        for(int i = 0; i < nSquares; i++)
+        {
+            this.drawSquare(side, color);
+            this.forward(side);
+        }
+    }
+    
+    
+   public void drawSquare(int side, Color color)
+   {
+       this.drawPolygon(4, side, color);
+   }
+     
+    public void drawPolygon(int nSides, int side, Color color)
+    {
+        final double ANGLE = 360.0 / nSides;
+        this.setColor(color);
+        for(int i = 0; i < nSides; i++)
+        {
+            this.forward(side);
+            this.right(ANGLE);
+        }
+    }
+    
+    
+    public void drawSquaresRotated(int nSquares, int side, Color color)
+    {
+        for(int i = 0; i < nSquares; i++)
+        {
+            this.drawSquare(side, color);
+            this.right(360 / nSquares);
+        }
+    }
+    
+    
+    public void rotate()
+    {
+        for(int i = 0; i < 360; i++)
+        {
+            this.forward(1);
+            this.right(1);
+        }
+    }
+    
+} 
